@@ -1,7 +1,7 @@
 # Definim el directori de treball
 setwd("C:/Users/Ot/Desktop/UOC/tfm/GSE186901_analisis")
 
-# Definim les llibreries que necessitarem per a l'an‡lisi
+# Definim les llibreries que necessitarem per a l'an√†lisi
 library(GO.db)
 library(GEOquery)
 library(org.Hs.eg.db)
@@ -16,24 +16,24 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 
 
-##### 1. C¿RREGA DE LES DADES
-# Obtenim les dades fenotÌpiques de GEO
+##### 1. C√ÄRREGA DE LES DADES
+# Obtenim les dades fenot√≠piques de GEO
 gse <- getGEO("GSE186901", GSEMatrix = TRUE)[[1]]
-# N'extraiem la informaciÛ fenotÌpica
+# N'extraiem la informaci√≥ fenot√≠pica
 pheno_data <- pData(gse)
 print(head(pheno_data))
 dim(pheno_data)
 # Carreguem la matriu de comptatges RNA-Seq
 # No la podem obtenir directament del GSE
 seqdata <- read.delim("./GSE186901_palbo_geo_tpm_mat.txt", stringsAsFactors = FALSE)
-# La primera columna nomÈs indica el n˙mero d'entrada (1,2,3...)
+# La primera columna nom√©s indica el n√∫mero d'entrada (1,2,3...)
 countdata <- seqdata[,-1]  
 dim(countdata)
-# AnotaciÛ a Entrez ID per poder fer l'an‡lisi
+# Anotaci√≥ a Entrez ID per poder fer l'an√†lisi
 # Obtenim els Entrez IDs 
 gens_ids <- countdata$gene_name
 # BiomaRt molts problemes, ho fem amb AnnotationDbi
-# important determinar que select Ès d'aquest paquet
+# important determinar que select √©s d'aquest paquet
 anotacions <- AnnotationDbi::select(org.Hs.eg.db, keys = gens_ids, columns = c("SYMBOL", "ENTREZID"), keytype = "SYMBOL")
 anotacions
 # Ajuntem els Entrez IDs amb la matriu de RNA-Seq
@@ -52,49 +52,49 @@ duplicats <- countdata$entrezgene_id[duplicated(countdata$entrezgene_id)]
 countdata <- countdata[!countdata$entrezgene_id %in% duplicats, ]
 # Assignem els entrez IDs com a noms de les files
 rownames(countdata) <- countdata$entrezgene_id
-# Eliminem les columnes que no tenen info numËrica
-# l'anomenem counts.TPM per recordar que Ès en TPM
+# Eliminem les columnes que no tenen info num√®rica
+# l'anomenem counts.TPM per recordar que √©s en TPM
 counts.TPM <- countdata[, -which(colnames(countdata) %in% c("gene_name", "accession_number","entrezgene_id"))]
 dim(counts.TPM)
 
 
-##### FILTRATGE PER NOM…S DADES APARELLADES
-# Obtenim els noms dels pacients que tÈ el GSE
+##### FILTRATGE PER NOM√âS DADES APARELLADES
+# Obtenim els noms dels pacients que t√© el GSE
 noms_pacients <- colnames(counts.TPM)
 # Extraiem l'identificador del pacient de les mostres
 id_pacients <- sub("_.*", "", noms_pacients)
-# Identifiquem NOM…S els pacients amb mostres tant en Baseline com en PD
+# Identifiquem NOM√âS els pacients amb mostres tant en Baseline com en PD
 baseline_samples <- grep("Baseline", noms_pacients, value = TRUE)
 pd_samples <- grep("PD", noms_pacients, value = TRUE)
 pacients_seleccionats <- intersect(sub("_.*", "", baseline_samples), sub("_.*", "", pd_samples))
-# del pacient 66 no tenim tota la informaciÛ, l'eliminem
+# del pacient 66 no tenim tota la informaci√≥, l'eliminem
 pacients_seleccionats <- pacients_seleccionats[pacients_seleccionats != "BRO7F.066"]
-# Seleccionem nomÈs els comptatges dels pacients amb dades tant de Baseline com de PD
+# Seleccionem nom√©s els comptatges dels pacients amb dades tant de Baseline com de PD
 samples_seleccionats <- noms_pacients[id_pacients %in% pacients_seleccionats]
 counts.TPM <- counts.TPM[, samples_seleccionats]
 # Les mostres seleccionades (44, de 22 pacients)
 print(samples_seleccionats)
 length(samples_seleccionats)
-# TambÈ hem de filtrar la phenodata
-# Com que el format no Ès el mateix, hem de canviar punts per guions en els noms de les mostres 
+# Tamb√© hem de filtrar la phenodata
+# Com que el format no √©s el mateix, hem de canviar punts per guions en els noms de les mostres 
 samples_seleccionats <- gsub("\\.", "-", samples_seleccionats)
 # Filtrar pheno_data per les mostres seleccionades utilitzant %in%
 pheno_data <- pheno_data[pheno_data$title %in% samples_seleccionats, ]
-# Comrpovem que tenim les 44 mostres (amb 42 dades clÌniques)
+# Comrpovem que tenim les 44 mostres (amb 42 dades cl√≠niques)
 dim(pheno_data)
 
 
 
 ##### 2. OBERTURA DE LES DADES (sense filtratge per dades aparellades)
 
-# Obtenim els noms dels pacients que tÈ el GSE
+# Obtenim els noms dels pacients que t√© el GSE
 ###########noms_pacients <- colnames(counts.TPM)
 
 # Ja no filtrem les mostres per pacients aparellats
 # Comprovem que tenim totes les mostres de les dades
 ###########3print(noms_pacients)
 
-# A continuaciÛ, no fem cap filtre sobre les mostres.
+# A continuaci√≥, no fem cap filtre sobre les mostres.
 # Mantenim totes les mostres que tenim
 # Comprovem que tenim totes les mostres
 ########dim(pheno_data)
@@ -105,25 +105,25 @@ dim(pheno_data)
 
 
 ##### 3. PREPROCESSAT DE LES DADES (I)
-# Per facilitar l'an‡lisi, ens quedem nomÈs amb els gens mÈs expressats
+# Per facilitar l'an√†lisi, ens quedem nom√©s amb els gens m√©s expressats
 thresh <- counts.TPM > 0.5
 # Obtenim TRUE o FALSE
 head(thresh)
-# Ens quedem els gens que com a mÌnim tinguin alta expressiÛ en 2 mostres
+# Ens quedem els gens que com a m√≠nim tinguin alta expressi√≥ en 2 mostres
 keep <- rowSums(thresh) >= 2
 # Filtrem per aquest processament i ens quedem la matriu 'counts.keep'
 counts.keep <- counts.TPM[keep,]
-# Veiem que tenim les 44 mostres perÚ ara comptem amb menys gens
+# Veiem que tenim les 44 mostres per√≤ ara comptem amb menys gens
 dim(counts.keep)
 
 
 
 
-########## 4. AN¿LISI DE QUALITAT
-# Per l'an‡lisi ser‡ mÈs f‡cil amb conversiÛ log2
+########## 4. AN√ÄLISI DE QUALITAT
+# Per l'an√†lisi ser√† m√©s f√†cil amb conversi√≥ log2
 logcounts <- as.matrix(log2(counts.TPM+0.1))
 
-# Ajustem els noms (sÛn massa llargs)
+# Ajustem els noms (s√≥n massa llargs)
 ajustar_noms_mostres <- function(noms_mostres) {
   noms_mostres_modificats <- sub("Baseline_", "B", noms_mostres)
   noms_mostres_modificats <- sub("PD_", "PD", noms_mostres_modificats)
@@ -135,25 +135,25 @@ colnames(logcounts) <- ajustar_noms_mostres(colnames(logcounts))
 # afegim colors per grup
 colors <- rep(c("darkorchid1", "darkgreen"), length.out = ncol(logcounts))
 
-# DistribuciÛ de tots els nostres comptatges
+# Distribuci√≥ de tots els nostres comptatges
 par(mar = c(7, 4, 2, 2))
 boxplot(logcounts, ylab="Log2-TPM", las=2, xlab="", col=colors, cex.axis=0.8, main="Boxplots de logTPMs")
 abline(h=median(logcounts), col="blue")
 
 
-# Per la notaciÛ, ho deixem com ho tenÌem
+# Per la notaci√≥, ho deixem com ho ten√≠em
 par(mar = c(5, 4, 4, 2))
 logcounts <- as.matrix(log2(counts.TPM+0.1))
 
 
 
-########## 5. AN¿LISI DESCRIPTIVA
+########## 5. AN√ÄLISI DESCRIPTIVA
 
 ##  Podem fer un PCA per presentar les nostres dades
 pca_result <- prcomp(t(logcounts), scale. = FALSE)
 # Convertim els resultats a un data frame
 pca_data <- data.frame(pca_result$x)
-# Incloem la informaciÛ fenotÌpica
+# Incloem la informaci√≥ fenot√≠pica
 pca_data$grup <- ifelse(grepl("Baseline", rownames(pca_data)), "Baseline", "PD")
 pca_data$pacient <- sub("_.*", "", rownames(pca_data))
 
@@ -161,56 +161,56 @@ pca_data$pacient <- sub("_.*", "", rownames(pca_data))
 pca_baseline_pd <- ggplot(pca_data, aes(x = PC1, y = PC2, color = grup)) +
   geom_point(size = 3, alpha = 0.6) +
   theme_classic() +
-  labs(title = "PCA de les mostres en les dues condicions", x = paste0("PC1: ", round(pca_result$sdev[1]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari‡ncia"),
-       y = paste0("PC2: ", round(pca_result$sdev[2]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari‡ncia")) +
+  labs(title = "PCA de les mostres en les dues condicions", x = paste0("PC1: ", round(pca_result$sdev[1]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari√†ncia"),
+       y = paste0("PC2: ", round(pca_result$sdev[2]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari√†ncia")) +
   scale_color_manual(values = c("Baseline" = "darkorchid1", "PD" = "darkgreen"))
 
 print(pca_baseline_pd)
 
-# No hi ha un patrÛ clar, veiem com s'agruppen entre pacients
+# No hi ha un patr√≥ clar, veiem com s'agruppen entre pacients
 pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = grup)) +
   geom_point(size = 3, alpha = 0.6) +
   geom_line(aes(group = pacient), color = "gray", alpha = 0.5) +
   theme_classic() +
   labs(title = "PCA connectant mostres per pacients",
-       x = paste0("PC1: ", round(pca_result$sdev[1]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari‡ncia"),
-       y = paste0("PC2: ", round(pca_result$sdev[2]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari‡ncia")) +
+       x = paste0("PC1: ", round(pca_result$sdev[1]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari√†ncia"),
+       y = paste0("PC2: ", round(pca_result$sdev[2]^2 / sum(pca_result$sdev^2) * 100, 1), "% vari√†ncia")) +
   scale_color_manual(values = c("Baseline" = "darkorchid1", "PD" = "darkgreen"))
 
 print(pca_plot)
 
 
-# Per expemplificar-ho, fem PCA per pacients (necessitem mÈs colors)
+# Per expemplificar-ho, fem PCA per pacients (necessitem m√©s colors)
 # Per 44 mostres, necessitem 2 colors distintius
 colors <- distinctColorPalette(23)
 # PCA amb colors diferents per a cada pacient
 pca_pacients <- ggplot(pca_data, aes(x = PC1, y = PC2, color = pacient)) +
   geom_point(size = 3, alpha = 0.6) +
   theme_classic() +
-  labs(title = "PCA per Pacients", x = paste0("PC1: ", round(pca_result$sdev[1]^2 / sum(pca_result$sdev^2) * 100, 1), "% varianÁa"),
-       y = paste0("PC2: ", round(pca_result$sdev[2]^2 / sum(pca_result$sdev^2) * 100, 1), "% varianÁa")) +
+  labs(title = "PCA per Pacients", x = paste0("PC1: ", round(pca_result$sdev[1]^2 / sum(pca_result$sdev^2) * 100, 1), "% varian√ßa"),
+       y = paste0("PC2: ", round(pca_result$sdev[2]^2 / sum(pca_result$sdev^2) * 100, 1), "% varian√ßa")) +
   scale_color_manual(values = colors)
 
 print(pca_pacients)
 
 
-# Podem veure-ho tambÈ veient-ne les diferËncies
+# Podem veure-ho tamb√© veient-ne les difer√®ncies
 ggplot(pca_data, aes(x = grup, y = PC1, group = pacient)) +
   geom_point(aes(color = pacient), size = 3, alpha = 0.6) +
   geom_line(color = "grey", alpha = 0.5) +
   theme_classic() +
   labs(title = "Canvi en PC1 entre Baseline i PD",
-       x = "CondiciÛ", y = "PC1") +
+       x = "Condici√≥", y = "PC1") +
   scale_color_manual(values = colors)
 
-# I per representar les diferËncies, podem veure-ho en colors, tambÈ
+# I per representar les difer√®ncies, podem veure-ho en colors, tamb√©
 pca_data <- pca_data %>%
   arrange(pacient, grup) %>%
   group_by(pacient) %>%
   mutate(direccio = ifelse(lead(PC1) > PC1, "asc", "desc")) %>%
   ungroup()
 
-# Podem veure com els canvis sÛn majorit‡riament decreixents
+# Podem veure com els canvis s√≥n majorit√†riament decreixents
 ggplot(pca_data, aes(x = grup, y = PC1, group = pacient)) +
   geom_point(aes(color = pacient), size = 3, alpha = 0.6) +
   geom_line(aes(color = direccio), size = 0.5, alpha = 0.5) +
@@ -234,7 +234,7 @@ colnames(design) <- c("Baseline", "PD")
 design
 
 
-## aixÚ Ès el que teniem abans de corregir per mostres aparellades
+## aix√≤ √©s el que teniem abans de corregir per mostres aparellades
 # Definim el grup basant-se en time:ch1 (Baseline vs PD)
 ###### group <- pheno_data$`time:ch1`
 # matriu de disseny
@@ -251,32 +251,32 @@ design
 
 
 
-########## 7. ESTIMACI” DEL MODEL
+########## 7. ESTIMACI√ì DEL MODEL
 # No podem treballar dades log-transformades 
 # amb logcounts tenim error per dades negatives
-# La funciÛ voom ajusta els comptatges
+# La funci√≥ voom ajusta els comptatges
 voom_data <- voom(counts.keep, design)
 # Ajustem el model de limma per a dades aparellades (block per pacient)
 block <- pheno_data$pacient 
 dupcor <- duplicateCorrelation(voom_data, design, block=block)
-# Ajustem el model tenint en compte la correlaciÛ 
+# Ajustem el model tenint en compte la correlaci√≥ 
 fit <- lmFit(voom_data, design, block=block, correlation=dupcor$consensus)
-# Definim els contrastos d'interËs
+# Definim els contrastos d'inter√®s
 contrast <- makeContrasts(Baseline_vs_PD = PD - Baseline, levels = design)
 # Apliquem els contrastos a l'objecte 'fit'
 fit2 <- contrasts.fit(fit, contrast)
-# EstimaciÛ Bayesiana empÌrica per ajustar per vari‡ncia
+# Estimaci√≥ Bayesiana emp√≠rica per ajustar per vari√†ncia
 fit2 <- eBayes(fit2)
-# Resultats per significaciÛ per p valor
+# Resultats per significaci√≥ per p valor
 TopTab <- topTable(fit2, adjust = "fdr", sort.by= "p",number = Inf)
 print(head(TopTab))
 
 
-########## 8. ANOTACI” DELS GENS
+########## 8. ANOTACI√ì DELS GENS
 # Obtenim els Gene Symbols per als Entrez IDs seleccionats 
 anotacions_gens <- AnnotationDbi::select(org.Hs.eg.db, keys = rownames(TopTab), columns = c("SYMBOL", "ENTREZID"), keytype = "ENTREZID")
 
-########## 9. VISUALITZACI” ENTRE LES CONDICIONS
+########## 9. VISUALITZACI√ì ENTRE LES CONDICIONS
 # Fem un volcano plot
 volcano <- ggplot(TopTab, aes(x = logFC, y = -log10(P.Value))) +
   geom_point(alpha = 0.4) +
@@ -287,11 +287,11 @@ volcano <- ggplot(TopTab, aes(x = logFC, y = -log10(P.Value))) +
 
 print(volcano)
 
-# Heatmap expressiÛ pels gens mÈs significatius
-# No som tan restrictius (P.value < 0.1 per obtenir mÈs gens)
+# Heatmap expressi√≥ pels gens m√©s significatius
+# No som tan restrictius (P.value < 0.1 per obtenir m√©s gens)
 top_gens <- rownames(subset(TopTab, (abs(logFC)> 1.0) & (P.Value < 0.05)))
 length(top_gens)
-# NomÈs ens interessen les dades d'expressiÛ per als gens seleccionats
+# Nom√©s ens interessen les dades d'expressi√≥ per als gens seleccionats
 expression_data <- logcounts[top_gens, ]
 # Centrem les dades per fer el heatmap
 mat <- expression_data - rowMeans(expression_data)
@@ -303,10 +303,10 @@ pd_samples <- noms_pacients[grepl("PD", noms_pacients)]
 samples_ordenats <- c(baseline_samples, pd_samples)
 mat <- mat[, samples_ordenats]
 
-# Afegim informaciÛ fenotÌpica (condicions) com a anotacions de columna
+# Afegim informaci√≥ fenot√≠pica (condicions) com a anotacions de columna
 annotation_col <- data.frame(Condition = ifelse(grepl("Baseline", colnames(mat)), "Baseline", "PD"))
 rownames(annotation_col) <- colnames(mat)
-# Per ˙ltim, afegim el nom en format SYMBOL
+# Per √∫ltim, afegim el nom en format SYMBOL
 rownames(mat) <- anotacions_gens$SYMBOL[match(rownames(mat), anotacions_gens$ENTREZID)]
 # Definim colors per a les condicions
 colors_condicions_heatmap <- list(Condition = c(Baseline = "darkorchid1", PD = "darkgreen"))
@@ -327,13 +327,13 @@ pheatmap(mat,
 
 
 
-####### 10. An‡lisi de significaciÛ biolÚgica
-# Fem un GSEA per veure en quines categories trobem diferËncies
+####### 10. An√†lisi de significaci√≥ biol√≤gica
+# Fem un GSEA per veure en quines categories trobem difer√®ncies
 geneList <- TopTab$logFC
 names(geneList) <- rownames(TopTab)
 # Ordenem perlogFC
 geneList <- sort(geneList, decreasing = TRUE)
-# GSEA amb GO per processos biolÚgics
+# GSEA amb GO per processos biol√≤gics
 gsea_results <- gseGO(geneList = geneList, 
                       OrgDb = org.Hs.eg.db, 
                       ont = "BP",  
@@ -353,12 +353,12 @@ cnetplot(gsea_results,
 
 
 
-######### 11.	DefiniciÛ dels gens candidats 
+######### 11.	Definici√≥ dels gens candidats 
 gens_UP <- rownames(subset(TopTab, (logFC > 1) & (P.Value < 0.05)))
 length(gens_UP)
 # Obtenim els Gene Symbols per als Entrez IDs seleccionats 
 anotacions_gens_UP<- AnnotationDbi::select(org.Hs.eg.db, keys = gens_UP, columns = c("SYMBOL", "ENTREZID"), keytype = "ENTREZID")
-# SÌmbols dels gens seleccionats 
+# S√≠mbols dels gens seleccionats 
 gens_UP_symbol <- anotacions_gens_UP$SYMBOL
 gens_UP_symbol
 
@@ -369,7 +369,7 @@ gens_UP_0.1 <- rownames(subset(TopTab, (logFC > 0.7) & (P.Value < 0.1)))
 length(gens_UP_0.1)
 # Obtenim els Gene Symbols per als Entrez IDs seleccionats 
 anotacions_gens_UP_0.1<- AnnotationDbi::select(org.Hs.eg.db, keys = gens_UP_0.1, columns = c("SYMBOL", "ENTREZID"), keytype = "ENTREZID")
-# SÌmbols dels gens seleccionats 
+# S√≠mbols dels gens seleccionats 
 gens_UP_symbol_0.1 <- anotacions_gens_UP_0.1$SYMBOL
 gens_UP_symbol_0.1
 
