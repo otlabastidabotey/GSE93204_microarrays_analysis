@@ -5,24 +5,9 @@ setwd("C:/Users/Ot/Desktop/UOC/tfm")
 ###################################### GENS IN VITRO
 
 # Dades de gens BT-474 i ZR75 CRISPR/CAS9 SCREEN CANDIDATES
-gens_bt474 <- c("ACVRL1", "ID1", "PLCB1", "ITGB6", "TP53", "ADAM12", "PAX5", "THBS4", "TIMP4", "PDCD1", 
-                "COL27A1", "CD8A", "SNAI1", "NSD1", "DUSP4", "SCARA5", "B3GNT3", "PYCARD", "TLR4", "LEF1",
-                "CDKN1A", "PIK3CA", "AGT", "TTYH1", "CACNG1", "LTB", "LEPR", "TSPAN7", "MAPK1", "SMC1B", 
-                "HSPA2", "MSR1", "LFNG", "TCF4", "PIK3R2", "HOXA9", "PSMB10", "GJB2", "BLM", "CNTFR", "LAMA3",
-                "PRF1", "COLEC12", "EFNA5", "SOCS1", "EPAS1", "PAX8", "ITPR1", "DTX3", "DKK2", "RASGRP1", 
-                "CCNE1", "LTBP1", "GRIN1", "NEIL2", "PARP1", "GNLY", "BNIP3", "HLA-DQB1", "AREG", "HLA-DMB", 
-                "BBOX1", "PDE9A", "E2F1", "TUBA4A", "DLL3", "HLA-B", "TPSAB1", "EGLN3", "IL22RA2", "SLC2A11", 
-                "PTEN", "FSTL1", "BTG2", "NETO2", "CCL5", "IL1B", "RORA", "SFRP1", "CDKN3", "GSK3B", "MT1G", 
-                "DDR2", "CD27", "LAMB3", "MMP3", "STAT1", "CPA3", "TSPAN1", "NOTCH3", "HLA-E", "RPS6KA5", 
-                "CCND2", "NFATC1", "FZD9", "IFT140", "CD19", "CCR5", "BMP8A", "WNT11", "HIF1A", "IDO1", 
-                "IL2RA")
-
-gens_zr75 <- c("BMP6", "TCF4", "GADD45A", "DSC2", "HDC", "BCAS1", "PIK3R3", "SOCS2", "ATP10B", "PIK3R2",
-               "PIK3CG", "SMAD3", "PDCD1", "STC1", "CAV1", "CSF3R", "CDH1", "ID4", "CDC25A", "CCL21",
-               "PDK4", "LEF1", "CD19", "CXCL5", "LTB", "ECM2", "POLQ", "GJB2", "PSMB9", "BMP4", "TNKS2",
-               "NOD2", "ERBB4", "DUSP4", "LIF", "AGTR1", "ROCK2", "ADAM12", "ATOSA", "PTTG1", "PBX3",
-               "CDH2", "HDAC11", "TNFAIP6", "CLDN3", "MUS81", "PRKACA", "SMURF2", "HBB", "DHRS2", "FGL2",
-               "CKS1B", "RASGRF2", "TYK2", "DLGAP5", "CCR5", "FHL1", "GZMB")
+# confidencial
+gens_bt474 <- c("x","x","x","...","x")
+gens_zr75 <- c("x","x","x","...","x")
 
 gens_invitro <- union(gens_zr75, gens_bt474)
 gens_invitro
